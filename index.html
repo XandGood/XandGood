@@ -1,13 +1,224 @@
-<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我的小站</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X And Good - Personal Showcase</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', Arial, sans-serif; }
+        body { 
+            background: linear-gradient(-45deg, #0b0f19, #1e1b4b, #111827, #000000);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff; 
+            overflow-x: hidden; 
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #555; }
+        
+        /* 增加修饰性的环境光背景 */
+        .ambient-glow {
+            position: fixed;
+            top: -20%; left: -10%;
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .ambient-glow-2 {
+            position: fixed;
+            bottom: -20%; right: -10%;
+            width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content { position: relative; z-index: 10; width: 100%; min-height: 200vh; }
+        
+        header { position: fixed; top: 0; width: 100%; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 100; backdrop-filter: blur(10px); background: rgba(0,0,0,0.2); }
+        .logo { font-size: 24px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+        .nav-items a { color: #fff; text-decoration: none; margin-left: 30px; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+
+        section { height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: center; padding: 0 10%; }
+        
+        .hero h1 { font-size: clamp(3rem, 10vw, 8rem); font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: -2px; overflow: hidden; }
+        .hero p { font-size: 1.5rem; color: #aaa; margin-top: 20px; max-width: 600px; }
+        
+        .huge-text { font-size: clamp(4rem, 15vw, 15rem); font-weight: 900; line-height: 0.8; white-space: nowrap; transform: translateX(20%); }
+        .outline { color: transparent; -webkit-text-stroke: 2px #fff; }
+        
+        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 50px; }
+        .feature-box { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); transform: translateY(50px); opacity: 0; transition: background 0.3s; }
+        .feature-box:hover { background: rgba(255,255,255,0.1); }
+        .feature-box h3 { font-size: 2rem; margin-bottom: 15px; }
+        .feature-box p { color: #888; font-size: 1rem; line-height: 1.5; }
+
+        .cta { align-items: center; text-align: center; }
+        .cta-btn { background: #fff; color: #000; padding: 20px 50px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; text-decoration: none; text-transform: uppercase; transition: transform 0.3s; margin-top: 40px; display: inline-block; }
+        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 15px; padding: 20px; }
+            .nav-items { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .nav-items a { margin: 0 10px; font-size: 12px; }
+            
+            section { height: auto; min-height: 100vh; padding: 100px 5%; }
+            .hero { justify-content: center; text-align: center; align-items: center; }
+            .hero p { font-size: 1rem; margin-top: 15px; }
+
+            .features { grid-template-columns: 1fr; gap: 20px; margin-top: 30px; }
+            .feature-box { padding: 30px; transform: translateY(30px); }
+
+            .cta h1 { font-size: 2.5rem !important; }
+            .cta-btn { padding: 15px 30px; font-size: 1rem; }
+        }
+
+        /* Custom Message Toast */
+        .toast {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50px);
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 16px 30px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.2);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .toast-text { font-size: 1rem; font-weight: 600; color: #fff; letter-spacing: 1px; }
+    </style>
 </head>
 <body>
-    <h1>欢迎来到我的小站 🎉</h1>
-    <p>嗨！这里是我的个人项目，已经部署上线啦~</p>
-    <p>目前还在慢慢完善中，如果你有什么想法或者想聊聊，欢迎发邮件给我：暂时不告诉你</p>
-    <p>感谢光临！✨</p>
+
+    <!-- 简单的发光背景 -->
+    <div class="ambient-glow"></div>
+    <div class="ambient-glow-2"></div>
+
+    <header>
+        <div class="logo">X & GOOD</div>
+        <div class="nav-items">
+            <a href="#">Showcase</a>
+            <a href="#">Effects</a>
+            <a href="#">About</a>
+        </div>
+    </header>
+
+    <div class="content">
+        <section class="hero">
+            <h1 class="hero-title">Welcome</h1>
+            <h1 class="hero-title" style="color: #ff3333;">To My Space</h1>
+            <p class="hero-desc">欢迎来到我（其实是Gemini）的个人前端展示空间。这里的特效是为了视觉展示而生（无任何实际功能，请放心点击）。</p>
+        </section>
+
+        <section class="section-text-scroll" style="align-items: center; justify-content: center; overflow: hidden;">
+            <div class="huge-text outline hl-1">CREATIVE</div>
+            <div class="huge-text hl-2">DESIGN</div>
+        </section>
+
+        <section class="section-features">
+            <h2>SHOWCASE HIGHLIGHTS</h2>
+            <div class="features">
+                <div class="feature-box">
+                    <h3>极简美学</h3>
+                    <p>摒弃了繁重的 3D 渲染，回归纯粹的 CSS 渐变与色彩呼吸。利用光影和排版呈现简单却深邃的现代感。</p>
+                </div>
+                <div class="feature-box">
+                    <h3>丝滑滚动体验</h3>
+                    <p>通过 GSAP 与 ScrollTrigger 处理排版动画。滚动滚轮，让巨型文本和卡片有生命力地交错延伸。</p>
+                </div>
+                <div class="feature-box">
+                    <h3>纯粹的"无用之用"</h3>
+                    <p>温馨提示：你所看到的导航、精美的卡片布局甚至是按钮，全都没用。请尽情点击，毕竟没有任何真实服务器会被唤醒。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h1 style="font-size: 4rem; margin-bottom: 20px;">ENJOY THE VIBE</h1>
+            <a href="#" class="cta-btn" id="fun-btn">CLICK FOR FUN</a>
+        </section>
+    </div>
+
+    <!-- 自定义弹窗 -->
+    <div id="custom-toast" class="toast">
+        <div class="toast-icon">✨</div>
+        <div class="toast-text">我就说没功能吧！感谢浏览！</div>
+    </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- GSAP SCROLL ANIMATIONS ---
+        
+        // Hero Intro
+        const tl = gsap.timeline();
+        tl.from(".logo, .nav-items a", { y: -20, opacity: 0, duration: 1, stagger: 0.1, ease: "power3.out" })
+          .from(".hero-title", { y: 100, opacity: 0, duration: 1.2, stagger: 0.2, ease: "power4.out" }, "-=0.5")
+          .from(".hero-desc", { y: 20, opacity: 0, duration: 1 }, "-=0.8");
+
+        // Huge Text Scroll
+        gsap.to(".hl-1", {
+            scrollTrigger: { trigger: ".section-text-scroll", start: "top bottom", end: "bottom top", scrub: 1 },
+            x: "-20%"
+        });
+        gsap.to(".hl-2", {
+            scrollTrigger: { trigger: ".section-text-scroll", start: "top bottom", end: "bottom top", scrub: 1 },
+            x: "-50%"
+        });
+
+        // Features
+        gsap.to(".feature-box", {
+            scrollTrigger: { trigger: ".section-features", start: "top center" },
+            y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "back.out(1.7)"
+        });
+
+        // --- Custom Toast Message Logic ---
+        const funBtn = document.getElementById('fun-btn');
+        const customToast = document.getElementById('custom-toast');
+        let toastTimeout;
+
+        funBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // 阻止默认跳转顶部
+            
+            // 显示弹窗
+            customToast.classList.add('show');
+            
+            // 清除之前的定时器，防止连续点击导致提前消失
+            clearTimeout(toastTimeout);
+            
+            // 3秒后自动隐藏
+            toastTimeout = setTimeout(() => {
+                customToast.classList.remove('show');
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
